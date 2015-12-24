@@ -8,11 +8,12 @@
  */
 
 apply plugin: 'java'
-apply plugin: 'checkstyle'
+//apply plugin: 'checkstyle'
+apply plugin: 'application'
 
 version = '1.0'
 targetCompatibility = 1.8
-mainClassName = 'tjago.apps.ivonatalkerapp.IvonaTalkerApp'
+mainClassName = 'eu.tjago.apps.ivonatalkerapp.IvonaTalkerApp'
 
 jar {
     baseName = 'ivona-talker-app'
@@ -20,10 +21,12 @@ jar {
 
 repositories {
     jcenter()
+    mavenCentral()
 }
 
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.12'
+    compile 'com.ivona:ivona-speechcloud-sdk-java:1.0.0'
 
     // TestNG is also supported by the Gradle Test task. Just change the
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
