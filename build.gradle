@@ -8,9 +8,15 @@
  */
 
 apply plugin: 'java'
+apply plugin: 'checkstyle'
 
-sourceCompatibility = 1.8
 version = '1.0'
+targetCompatibility = 1.8
+mainClassName = 'tjago.apps.ivonatalkerapp.IvonaTalkerApp'
+
+jar {
+    baseName = 'ivona-talker-app'
+}
 
 repositories {
     jcenter()
@@ -23,4 +29,12 @@ dependencies {
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
     // 'test.useTestNG()' to your build script.
     testCompile 'junit:junit:4.12'
+}
+
+uploadArchives {
+    repositories {
+        flatDir {
+            dirs 'repos'
+        }
+    }
 }
