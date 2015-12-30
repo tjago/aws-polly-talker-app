@@ -13,7 +13,7 @@ apply plugin: 'application'
 
 version = '1.0'
 targetCompatibility = 1.8
-mainClassName = 'eu.tjago.apps.ivonatalkerapp.IvonaTalkerApp'
+mainClassName = 'eu.tjago.apps.ivonatalker.IvonaTalkerApp'
 
 jar {
     baseName = 'ivona-talker-app'

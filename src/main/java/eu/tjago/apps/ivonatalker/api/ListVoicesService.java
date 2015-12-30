@@ -1,10 +1,11 @@
-package eu.tjago.apps.ivonatalkerapp.api;
+package eu.tjago.apps.ivonatalker.api;
 
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
 import com.ivona.services.tts.IvonaSpeechCloudClient;
 import com.ivona.services.tts.model.ListVoicesRequest;
 import com.ivona.services.tts.model.ListVoicesResult;
 import com.ivona.services.tts.model.Voice;
+import eu.tjago.apps.ivonatalker.util.Constants;
 
 import java.util.List;
 
@@ -14,40 +15,34 @@ import java.util.List;
 
 public class ListVoicesService {
 
-    public static final String IVONA_ENDPOINT_URL = "https://tts.eu-west-1.ivonacloud.com";
-    public static final String LANGUAGE_EN_US = "en-US";
-    public static final String IVONA_CREDENTIALS_PROPERTIES = "IvonaCredentials.properties";
 
     private IvonaSpeechCloudClient speechCloud;
 
     private void init() {
         this.speechCloud = new IvonaSpeechCloudClient(
-                new ClasspathPropertiesFileCredentialsProvider(IVONA_CREDENTIALS_PROPERTIES));
-        this.speechCloud.setEndpoint(IVONA_ENDPOINT_URL);
+                new ClasspathPropertiesFileCredentialsProvider(Constants.IVONA_CREDENTIALS_PROPERTIES));
+        this.speechCloud.setEndpoint(Constants.IVONA_SERVICE_ENDPOINT);
     }
 
     public ListVoicesService() {
         init();
-//        listAllVoices();
-        printVoices(listVoicesFromLanguage(LANGUAGE_EN_US));
+//        printVoices(listVoicesFromLanguage(Constants.PREFERED_LANGUAGE));
     }
 
-    private List<Voice> listAllVoices() {
+    public List<Voice> getAllVoicesList() {
         ListVoicesRequest allVoicesRequest = new ListVoicesRequest();
         ListVoicesResult allVoicesResult = speechCloud.listVoices(allVoicesRequest);
 
         return allVoicesResult.getVoices();
     }
 
-    private List<Voice> listVoicesFromLanguage(String lang) {
+    public List<Voice> listVoicesFromLanguage(String lang) {
         ListVoicesRequest voicesRequest = new ListVoicesRequest();
-        Voice voice = new Voice();
-        voice.setLanguage(lang);
-        voicesRequest.setVoice(voice);
-        ListVoicesResult listVoicesResult = speechCloud.listVoices(voicesRequest);
-        System.out.println(lang + " voices: ");
+          Voice voice = new Voice();
+          voice.setLanguage(lang);
+          voicesRequest.setVoice(voice);
 
-        return listVoicesResult.getVoices();
+        return speechCloud.listVoices(voicesRequest).getVoices();
     }
 
     public void printVoices(List<Voice> voicesList) {

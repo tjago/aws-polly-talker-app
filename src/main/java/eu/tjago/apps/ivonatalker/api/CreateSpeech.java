@@ -1,4 +1,4 @@
-package eu.tjago.apps.ivonatalkerapp.api;
+package eu.tjago.apps.ivonatalker.api;
 
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
 import com.ivona.services.tts.IvonaSpeechCloudClient;
@@ -6,6 +6,7 @@ import com.ivona.services.tts.model.CreateSpeechRequest;
 import com.ivona.services.tts.model.CreateSpeechResult;
 import com.ivona.services.tts.model.Input;
 import com.ivona.services.tts.model.Voice;
+import eu.tjago.apps.ivonatalker.util.Constants;
 
 import java.io.*;
 
@@ -13,28 +14,31 @@ import java.io.*;
  * Created by Tomasz on 2015-12-24.
  */
 public class CreateSpeech {
-    public static final String IVONA_CREDENTIALS_PROPERTIES = "IvonaCredentials.properties";
-    public static final String IVONA_SERVICE_ENDPOINT = "https://tts.eu-west-1.ivonacloud.com";
 
     private IvonaSpeechCloudClient speechCloud;
 
     private void init() {
         speechCloud = new IvonaSpeechCloudClient(
-                new ClasspathPropertiesFileCredentialsProvider(IVONA_CREDENTIALS_PROPERTIES));
-        speechCloud.setEndpoint(IVONA_SERVICE_ENDPOINT);
+                new ClasspathPropertiesFileCredentialsProvider(Constants.IVONA_CREDENTIALS_PROPERTIES));
+        speechCloud.setEndpoint(Constants.IVONA_SERVICE_ENDPOINT);
     }
 
     public CreateSpeech() {
+        this("Salli", "This is a sample text to be synthesized.");
+    }
+
+    public CreateSpeech(String voiceName, String textInput) {
 
         init();
 
         String outputFileName = "/tmp/speech.mp3";
         CreateSpeechRequest createSpeechRequest = new CreateSpeechRequest();
+
         Input input = new Input();
         Voice voice = new Voice();
 
-        voice.setName("Salli");
-        input.setData("This is a sample text to be synthesized.");
+        voice.setName(voiceName);
+        input.setData(textInput);
 
         createSpeechRequest.setInput(input);
         createSpeechRequest.setVoice(voice);
