@@ -1,10 +1,11 @@
 package eu.tjago.apps.ivonatalker.controller;
 
+import com.amazonaws.AmazonServiceException;
 import com.ivona.services.tts.model.Voice;
 import eu.tjago.apps.ivonatalker.IvonaTalkerApp;
-import eu.tjago.apps.ivonatalker.api.CreateSpeech;
-import eu.tjago.apps.ivonatalker.api.ListVoicesService;
+import eu.tjago.apps.ivonatalker.api.SpeechCloudSingleton;
 import eu.tjago.apps.ivonatalker.util.Constants;
+import eu.tjago.apps.ivonatalker.util.FileHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -12,22 +13,26 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
-import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.stage.FileChooser;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Tomasz on 2015-12-29.
  */
 public class ContentAreaController {
 
-    public static final String TEMP_MP3_FILE = "/tmp/speech.mp3";
     private IvonaTalkerApp appInstance;
     private List<Voice> voicesList;
-    private static MediaPlayer audioMediaPlayer;
+    private MediaPlayer audioMediaPlayer;
 
     @FXML
     private TextArea textArea;
@@ -40,12 +45,14 @@ public class ContentAreaController {
 
     @FXML
     private void initialize() {
-        ListVoicesService listVoicesService = new ListVoicesService();
-        this.voicesList = listVoicesService.getAllVoicesList();
+        try {
+            this.voicesList = SpeechCloudSingleton.getAllVoicesList();
+            setLanguageCombobox();
+            setVoiceCombobox();
 
-        setLanguageCombobox();
-        setVoiceCombobox();
-        setLanguageCombobox();
+        } catch (AmazonServiceException asEx) {
+            System.out.println(" Warning: Wrong Credentials");
+        }
     }
 
     @FXML
@@ -53,35 +60,75 @@ public class ContentAreaController {
         setVoiceCombobox();
     }
 
+    /**
+     * Commounicate with Amazon Cloud Voice service to obtain sound file
+     * @param event
+     */
     @FXML
     private void btnReadTextPressed(ActionEvent event) {
         String voice = voicesComboBox.getSelectionModel().getSelectedItem();
 
-        //save audio mp3 file to disk
-        new CreateSpeech(voice, textArea.getText());
-//        playSoundFile(TEMP_MP3_FILE);
-        playAudioFile(TEMP_MP3_FILE);
+        SpeechCloudSingleton.createSpeech(voice, textArea.getText());
+        playAudioFile(SpeechCloudSingleton.getTmpSpeechFilename());
+    }
+
+    /**
+     * Opens a FileChooser to let save MP3 file
+     */
+    @FXML
+    private void handleSave() {
+        FileChooser fileChooser = new FileChooser();
+
+        // Set extension filter
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+                "MP3 files (*.mp3)", "*.mp3");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        //set init Dir upon opening Dialog
+        Optional<File> initialPath = Optional.ofNullable(FileHelper.getLastSavedLocation());
+        if (initialPath.isPresent()) {
+            fileChooser.setInitialDirectory(initialPath.get());
+        }
+
+        // Show save file dialog
+        File file = fileChooser.showSaveDialog(appInstance.getPrimaryStage());
+
+        if (file != null) {
+            // Make sure it has the correct extension
+            if (!file.getPath().endsWith(".mp3")) {
+                file = new File(file.getPath() + ".mp3");
+            }
+            try {
+                Files.copy(SpeechCloudSingleton.getTmpSpeechFile().toPath(),
+                        file.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
+                FileHelper.setLastSavedLocation(file);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void playAudioFile(String file) {
+        if(audioMediaPlayer != null) {
+            audioMediaPlayer.dispose();
+        }
         Media audioMedia = new Media(Paths.get(file).toUri().toString());
-        audioMediaPlayer = new MediaPlayer(audioMedia);
-        audioMediaPlayer.play();
+        this.audioMediaPlayer = new MediaPlayer(audioMedia);
+        this.audioMediaPlayer.play();
     }
 
-    private void playSoundFile(String file) {
-
-        AudioClip speech = new AudioClip(Paths.get(file).toUri().toString());
-        speech.play();
-    }
-
+    /**
+     * After choosing Language
+     */
     private void setVoiceCombobox() {
 
-        String pickedLanguage = languageComboBox.getSelectionModel().getSelectedItem();
+        String pickedLanguage = languageComboBox.getSelectionModel().getSelectedItem().toString();
         ObservableList<String> voicesObsList = FXCollections.observableArrayList();
 
         for (Voice voice : voicesList) {
-            if (voice.getLanguage() == pickedLanguage) {
+            if (voice.getLanguage().equals(pickedLanguage)) {
                 voicesObsList.add(voice.getName());
             }
         }
@@ -105,6 +152,11 @@ public class ContentAreaController {
         }
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        audioMediaPlayer.dispose();
+    }
 
     public void setMainApp(IvonaTalkerApp ivonaTalkerApp) {
         this.appInstance = ivonaTalkerApp;

@@ -13,6 +13,7 @@ import java.io.*;
 /**
  * Created by Tomasz on 2015-12-24.
  */
+@Deprecated
 public class CreateSpeech {
 
     private IvonaSpeechCloudClient speechCloud;
@@ -31,8 +32,7 @@ public class CreateSpeech {
 
         init();
 
-        String outputFileName = "/tmp/speech.mp3";
-        CreateSpeechRequest createSpeechRequest = new CreateSpeechRequest();
+        String outputFileName = "/tmp/speech.mp3"; //System.getProperty("java.io.tmpdir") - save to tmp folder if possible
 
         Input input = new Input();
         Voice voice = new Voice();
@@ -40,8 +40,10 @@ public class CreateSpeech {
         voice.setName(voiceName);
         input.setData(textInput);
 
+        CreateSpeechRequest createSpeechRequest = new CreateSpeechRequest();
         createSpeechRequest.setInput(input);
         createSpeechRequest.setVoice(voice);
+
         InputStream in = null;
         FileOutputStream outputStream = null;
 

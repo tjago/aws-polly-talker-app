@@ -1,6 +1,7 @@
 package eu.tjago.apps.ivonatalker.api;
 
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
+import com.amazonaws.internal.StaticCredentialsProvider;
 import com.ivona.services.tts.IvonaSpeechCloudClient;
 import com.ivona.services.tts.model.ListVoicesRequest;
 import com.ivona.services.tts.model.ListVoicesResult;
@@ -13,16 +14,31 @@ import java.util.List;
  * Created by Tomasz on 2015-12-24.
  */
 
+@Deprecated
 public class ListVoicesService {
-
 
     private IvonaSpeechCloudClient speechCloud;
 
+    /**
+     * Init Speech cloud with credentials provide from properties file
+     */
     private void init() {
         this.speechCloud = new IvonaSpeechCloudClient(
                 new ClasspathPropertiesFileCredentialsProvider(Constants.IVONA_CREDENTIALS_PROPERTIES));
         this.speechCloud.setEndpoint(Constants.IVONA_SERVICE_ENDPOINT);
     }
+
+    /**
+     * Init Speech cloud by credentials model
+     *
+     * @param credentials
+     */
+    private void init(IvonaCredentials credentials) {
+        this.speechCloud = new IvonaSpeechCloudClient(
+                new StaticCredentialsProvider(credentials));
+        this.speechCloud.setEndpoint(Constants.IVONA_SERVICE_ENDPOINT);
+    }
+
 
     public ListVoicesService() {
         init();

@@ -7,17 +7,19 @@
  * user guide available at https://docs.gradle.org/2.7/userguide/tutorial_java_projects.html
  */
 
+plugins {
+    id 'java' // or 'groovy' Must be explicitly applied
+    id 'com.github.johnrengelman.shadow' version '1.2.2'
+}
+
 apply plugin: 'java'
-//apply plugin: 'checkstyle'
 apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 version = '1.0'
 targetCompatibility = 1.8
 mainClassName = 'eu.tjago.apps.ivonatalker.IvonaTalkerApp'
 
-jar {
-    baseName = 'ivona-talker-app'
-}
 
 repositories {
     jcenter()
@@ -32,6 +34,17 @@ dependencies {
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
     // 'test.useTestNG()' to your build script.
     testCompile 'junit:junit:4.12'
+}
+jar {
+    baseName = 'ivona-talker-app'
+    manifest {
+        attributes(
+                'Implementation-Title': baseName,
+                'Implementation-Version': 1.0,
+                'Main-Class': mainClassName,
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' ')
+        )
+    }
 }
 
 uploadArchives {
