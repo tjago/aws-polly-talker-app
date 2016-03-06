@@ -3,6 +3,14 @@ language: java
 before_install:
 - chmod +x gradlew
 
+jdk:
+- oraclejdk8
+
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+
 branches:
   only:
     - master
