@@ -21,12 +21,10 @@ import javafx.stage.Stage;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.prefs.Preferences;
+import java.nio.file.Path;
 
 /**
  * Created by Tomasz on 2015-12-24.
@@ -64,8 +62,14 @@ public class IvonaTalkerApp extends Application {
     @Override
     public void stop() throws Exception {
 
+        //FIXME release player resource file
+
         // remove temporary .mp3 file
-        Files.delete(SpeechCloudSingleton.getTmpSpeechFile().toPath());
+        Path path = SpeechCloudSingleton.getTmpSpeechFile().toPath();
+
+        if (Files.exists(path)) {
+            Files.delete(SpeechCloudSingleton.getTmpSpeechFile().toPath());
+        }
 
         Platform.exit();
     }

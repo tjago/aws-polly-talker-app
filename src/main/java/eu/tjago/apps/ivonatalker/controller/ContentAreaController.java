@@ -6,6 +6,7 @@ import eu.tjago.apps.ivonatalker.IvonaTalkerApp;
 import eu.tjago.apps.ivonatalker.api.SpeechCloudSingleton;
 import eu.tjago.apps.ivonatalker.util.Constants;
 import eu.tjago.apps.ivonatalker.util.FileHelper;
+import eu.tjago.apps.ivonatalker.util.VoicePlayer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -33,6 +34,8 @@ public class ContentAreaController {
     private IvonaTalkerApp appInstance;
     private List<Voice> voicesList;
     private MediaPlayer audioMediaPlayer;
+
+    private Thread playerThread;
 
     @FXML
     private TextArea textArea;
@@ -65,11 +68,17 @@ public class ContentAreaController {
      * @param event
      */
     @FXML
-    private void btnReadTextPressed(ActionEvent event) {
+    private void btnReadTextPressed(ActionEvent event) throws InterruptedException {
         String voice = voicesComboBox.getSelectionModel().getSelectedItem();
 
         SpeechCloudSingleton.createSpeech(voice, textArea.getText());
         playAudioFile(SpeechCloudSingleton.getTmpSpeechFilename());
+
+        VoicePlayer vp = new VoicePlayer();
+
+        vp.run();
+        Thread.sleep(4000);
+        vp.halt();
     }
 
     /**
