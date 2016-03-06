@@ -3,9 +3,6 @@ language: java
 before_install:
 - chmod +x gradlew
 
-jdk:
-- openjdk8
-
 branches:
   only:
     - master
