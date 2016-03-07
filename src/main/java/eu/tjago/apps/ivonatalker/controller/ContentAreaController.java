@@ -5,7 +5,7 @@ import com.ivona.services.tts.model.Voice;
 import eu.tjago.apps.ivonatalker.IvonaTalkerApp;
 import eu.tjago.apps.ivonatalker.api.SpeechCloudSingleton;
 import eu.tjago.apps.ivonatalker.util.Constants;
-import eu.tjago.apps.ivonatalker.util.FileHelper;
+import eu.tjago.apps.ivonatalker.util.ThreadedVoicePlayer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -15,15 +15,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.stage.FileChooser;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by Tomasz on 2015-12-29.
@@ -32,7 +26,7 @@ public class ContentAreaController {
 
     private IvonaTalkerApp appInstance;
     private List<Voice> voicesList;
-    private MediaPlayer audioMediaPlayer;
+    private ThreadedVoicePlayer threadedVoicePlayer;
 
     @FXML
     private TextArea textArea;
@@ -65,11 +59,18 @@ public class ContentAreaController {
      * @param event
      */
     @FXML
-    private void btnReadTextPressed(ActionEvent event) {
+    private void btnReadTextPressed(ActionEvent event) throws InterruptedException {
         String voice = voicesComboBox.getSelectionModel().getSelectedItem();
 
         SpeechCloudSingleton.createSpeech(voice, textArea.getText());
-        playAudioFile(SpeechCloudSingleton.getTmpSpeechFilename());
+
+        Media audioMedia = new Media(Paths.get(SpeechCloudSingleton.getTmpSpeechFilename())
+                .toUri()
+                .toString());
+
+        this.threadedVoicePlayer = new ThreadedVoicePlayer(new MediaPlayer(audioMedia));
+
+        threadedVoicePlayer.run();
     }
 
     /**
@@ -77,50 +78,11 @@ public class ContentAreaController {
      */
     @FXML
     private void handleSave() {
-        FileChooser fileChooser = new FileChooser();
-
-        // Set extension filter
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
-                "MP3 files (*.mp3)", "*.mp3");
-        fileChooser.getExtensionFilters().add(extFilter);
-
-        //set init Dir upon opening Dialog
-        Optional<File> initialPath = Optional.ofNullable(FileHelper.getLastSavedLocation());
-        if (initialPath.isPresent()) {
-            fileChooser.setInitialDirectory(initialPath.get());
-        }
-
-        // Show save file dialog
-        File file = fileChooser.showSaveDialog(appInstance.getPrimaryStage());
-
-        if (file != null) {
-            // Make sure it has the correct extension
-            if (!file.getPath().endsWith(".mp3")) {
-                file = new File(file.getPath() + ".mp3");
-            }
-            try {
-                Files.copy(SpeechCloudSingleton.getTmpSpeechFile().toPath(),
-                        file.toPath(),
-                        StandardCopyOption.REPLACE_EXISTING);
-                FileHelper.setLastSavedLocation(file);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void playAudioFile(String file) {
-        if(audioMediaPlayer != null) {
-            audioMediaPlayer.dispose();
-        }
-        Media audioMedia = new Media(Paths.get(file).toUri().toString());
-        this.audioMediaPlayer = new MediaPlayer(audioMedia);
-        this.audioMediaPlayer.play();
+        appInstance.saveVoiceToFile();
     }
 
     /**
-     * After choosing Language
+     * Method called after choosing Language
      */
     private void setVoiceCombobox() {
 
@@ -155,7 +117,6 @@ public class ContentAreaController {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        audioMediaPlayer.dispose();
     }
 
     public void setMainApp(IvonaTalkerApp ivonaTalkerApp) {
@@ -163,4 +124,8 @@ public class ContentAreaController {
     }
 
 
+    @FXML
+    private void stopReading(ActionEvent actionEvent) {
+        threadedVoicePlayer.halt();
+    }
 }
