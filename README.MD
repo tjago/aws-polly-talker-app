@@ -1,4 +1,5 @@
 # Ivona Talker App
+[![Build Status](https://travis-ci.org/tjago/javafx-ivona-speech-api.svg?branch=master)]
 
 This app uses the Amazon Ivona service api to generate voice from text, similar to Siri.
 
