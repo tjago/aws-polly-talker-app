@@ -32,4 +32,8 @@ public class MainWindowController {
     public void onAboutClicked(ActionEvent event) {
         app.showAboutDialog();
     }
+
+    public void handleSave(ActionEvent actionEvent) {
+        app.saveVoiceToFile();
+    }
 }

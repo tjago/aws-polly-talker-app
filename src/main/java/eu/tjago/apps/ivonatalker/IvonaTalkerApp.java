@@ -16,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -25,6 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 
 /**
  * Created by Tomasz on 2015-12-24.
@@ -218,6 +221,40 @@ public class IvonaTalkerApp extends Application {
             e.printStackTrace();
 
             alert.showAndWait();
+        }
+    }
+
+    public void saveVoiceToFile() {
+        FileChooser fileChooser = new FileChooser();
+
+        // Set extension filter
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("MP3 files (*.mp3)", "*.mp3");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        //set init Dir upon opening Dialog
+        Optional<File> initialPath = Optional.ofNullable(FileHelper.getLastSavedLocation());
+
+        if (initialPath.isPresent()) {
+            fileChooser.setInitialDirectory(initialPath.get());
+        }
+
+        // Show save file dialog
+        File file = fileChooser.showSaveDialog(this.primaryStage);
+
+        if (file != null) {
+            // Make sure it has the correct extension
+            if (!file.getPath().endsWith(".mp3")) {
+                file = new File(file.getPath() + ".mp3");
+            }
+            try {
+                Files.copy(SpeechCloudSingleton.getTmpSpeechFile().toPath(),
+                        file.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
+                FileHelper.setLastSavedLocation(file);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
