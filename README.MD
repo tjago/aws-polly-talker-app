@@ -22,4 +22,4 @@ Features:
 
 ![screen1][screen-main]
 
-[screen-main]: https://github.com/tjago/javafx-ivona-speech-api/raw/master/media/screenshots/IvonaApp.jpg "JavaFX Ivon App GUI"
+[screen-main]: https://github.com/tjago/javafx-ivona-speech-api/blob/master/media/screenshots/IvonaApp.JPG "JavaFX Ivon App GUI"
