@@ -6,7 +6,7 @@ import eu.tjago.apps.ivonatalker.IvonaTalkerApp;
 import eu.tjago.apps.ivonatalker.api.SpeechCloudSingleton;
 import eu.tjago.apps.ivonatalker.util.Constants;
 import eu.tjago.apps.ivonatalker.util.FileHelper;
-import eu.tjago.apps.ivonatalker.util.VoicePlayer;
+import eu.tjago.apps.ivonatalker.util.ThreadedVoicePlayer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -33,7 +33,6 @@ public class ContentAreaController {
 
     private IvonaTalkerApp appInstance;
     private List<Voice> voicesList;
-    private MediaPlayer audioMediaPlayer;
 
     private Thread playerThread;
 
@@ -72,9 +71,12 @@ public class ContentAreaController {
         String voice = voicesComboBox.getSelectionModel().getSelectedItem();
 
         SpeechCloudSingleton.createSpeech(voice, textArea.getText());
-        playAudioFile(SpeechCloudSingleton.getTmpSpeechFilename());
 
-        VoicePlayer vp = new VoicePlayer();
+        Media audioMedia = new Media(Paths.get(SpeechCloudSingleton.getTmpSpeechFilename())
+                .toUri()
+                .toString());
+
+        ThreadedVoicePlayer vp = new ThreadedVoicePlayer(new MediaPlayer(audioMedia));
 
         vp.run();
         Thread.sleep(4000);
@@ -95,6 +97,7 @@ public class ContentAreaController {
 
         //set init Dir upon opening Dialog
         Optional<File> initialPath = Optional.ofNullable(FileHelper.getLastSavedLocation());
+
         if (initialPath.isPresent()) {
             fileChooser.setInitialDirectory(initialPath.get());
         }
@@ -119,17 +122,8 @@ public class ContentAreaController {
         }
     }
 
-    private void playAudioFile(String file) {
-        if(audioMediaPlayer != null) {
-            audioMediaPlayer.dispose();
-        }
-        Media audioMedia = new Media(Paths.get(file).toUri().toString());
-        this.audioMediaPlayer = new MediaPlayer(audioMedia);
-        this.audioMediaPlayer.play();
-    }
-
     /**
-     * After choosing Language
+     * Method called after choosing Language
      */
     private void setVoiceCombobox() {
 
@@ -164,7 +158,6 @@ public class ContentAreaController {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        audioMediaPlayer.dispose();
     }
 
     public void setMainApp(IvonaTalkerApp ivonaTalkerApp) {
