@@ -1,15 +1,13 @@
-package eu.tjago.apps.ivonatalker.util;
+package eu.tjago.apps.pollytalker.util;
 
-import eu.tjago.apps.ivonatalker.IvonaTalkerApp;
-import eu.tjago.apps.ivonatalker.api.IvonaCredentials;
+import eu.tjago.apps.pollytalker.PollyTalkerApp;
+import eu.tjago.apps.pollytalker.api.IvonaCredentials;
 import javafx.scene.control.Alert;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.FileReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.prefs.Preferences;
 
 /**
@@ -50,7 +48,7 @@ public class FileHelper {
      * @param file
      */
     public static void setLastSavedLocation(File file) {
-        Preferences prefs = Preferences.userNodeForPackage(IvonaTalkerApp.class);
+        Preferences prefs = Preferences.userNodeForPackage(PollyTalkerApp.class);
 
         if (file != null) {
             prefs.put("filePath", file.getPath());
@@ -65,7 +63,7 @@ public class FileHelper {
      * @return
      */
     public static File getLastSavedLocation() {
-        Preferences prefs = Preferences.userNodeForPackage(IvonaTalkerApp.class);
+        Preferences prefs = Preferences.userNodeForPackage(PollyTalkerApp.class);
         String filePath = prefs.get("filePath", null);
         if (filePath != null) {
             return new File(filePath).getParentFile();

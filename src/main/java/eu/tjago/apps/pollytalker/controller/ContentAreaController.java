@@ -1,11 +1,12 @@
-package eu.tjago.apps.ivonatalker.controller;
+package eu.tjago.apps.pollytalker.controller;
 
 import com.amazonaws.AmazonServiceException;
-import com.ivona.services.tts.model.Voice;
-import eu.tjago.apps.ivonatalker.IvonaTalkerApp;
-import eu.tjago.apps.ivonatalker.api.SpeechCloudSingleton;
-import eu.tjago.apps.ivonatalker.util.Constants;
-import eu.tjago.apps.ivonatalker.util.ThreadedVoicePlayer;
+import com.amazonaws.services.polly.model.OutputFormat;
+import com.amazonaws.services.polly.model.Voice;
+import eu.tjago.apps.pollytalker.PollyTalkerApp;
+import eu.tjago.apps.pollytalker.api.SpeechCloudSingleton;
+import eu.tjago.apps.pollytalker.util.Constants;
+import eu.tjago.apps.pollytalker.util.ThreadedVoicePlayer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -16,15 +17,20 @@ import javafx.scene.control.TextArea;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Tomasz on 2015-12-29.
  */
 public class ContentAreaController {
 
-    private IvonaTalkerApp appInstance;
+    private PollyTalkerApp appInstance;
     private List<Voice> voicesList;
     private ThreadedVoicePlayer threadedVoicePlayer;
 
@@ -40,7 +46,7 @@ public class ContentAreaController {
     @FXML
     private void initialize() {
         try {
-            this.voicesList = SpeechCloudSingleton.getAllVoicesList();
+            this.voicesList = SpeechCloudSingleton.getInstance().getAllVoicesList();
             setLanguageCombobox();
             setVoiceCombobox();
 
@@ -60,17 +66,41 @@ public class ContentAreaController {
      */
     @FXML
     private void btnReadTextPressed(ActionEvent event) throws InterruptedException {
-        String voice = voicesComboBox.getSelectionModel().getSelectedItem();
+        String voiceCode = voicesComboBox.getSelectionModel().getSelectedItem();
+        Optional<InputStream> speechStream = Optional.empty();
+        try {
+            speechStream.ofNullable(SpeechCloudSingleton.synthesize(textArea.getText(),
+                    OutputFormat.Mp3,
+                    SpeechCloudSingleton.getInstance().getAllVoicesList().get(0))
+            );
+        } catch (IOException e) {
+            System.out.println("Exception Error: " + e.getMessage());
+            e.printStackTrace();
+        }
 
-        SpeechCloudSingleton.createSpeech(voice, textArea.getText());
+//        Media audioMedia = new Media(Paths.get(SpeechCloudSingleton.getTmpSpeechFilename())
+//                .toUri()
+//                .toString());
+//
+//        this.threadedVoicePlayer = new ThreadedVoicePlayer(new MediaPlayer(audioMedia));
+//
+//        threadedVoicePlayer.run();
+        speechStream.ifPresent(inputStream -> doSaveFile(inputStream));
 
-        Media audioMedia = new Media(Paths.get(SpeechCloudSingleton.getTmpSpeechFilename())
-                .toUri()
-                .toString());
+    }
 
-        this.threadedVoicePlayer = new ThreadedVoicePlayer(new MediaPlayer(audioMedia));
+    static void doSaveFile(InputStream s) {
 
-        threadedVoicePlayer.run();
+        File targetFile = new File("speech.mp3");
+
+        try {
+            java.nio.file.Files.copy(
+                    s,
+                    targetFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -90,7 +120,7 @@ public class ContentAreaController {
         ObservableList<String> voicesObsList = FXCollections.observableArrayList();
 
         for (Voice voice : voicesList) {
-            if (voice.getLanguage().equals(pickedLanguage)) {
+            if (voice.getLanguageCode().equals(pickedLanguage)) {
                 voicesObsList.add(voice.getName());
             }
         }
@@ -103,7 +133,7 @@ public class ContentAreaController {
         ObservableSet<String> languagesSet = FXCollections.observableSet();
 
         for (Voice voice : voicesList) {
-            languagesSet.add(voice.getLanguage());
+            languagesSet.add(voice.getLanguageCode());
         }
 
         languageComboBox.setItems(FXCollections.observableArrayList(languagesSet));
@@ -119,7 +149,7 @@ public class ContentAreaController {
         super.finalize();
     }
 
-    public void setMainApp(IvonaTalkerApp ivonaTalkerApp) {
+    public void setMainApp(PollyTalkerApp ivonaTalkerApp) {
         this.appInstance = ivonaTalkerApp;
     }
 

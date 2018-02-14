@@ -1,14 +1,14 @@
-package eu.tjago.apps.ivonatalker;
+package eu.tjago.apps.pollytalker;
 
-import eu.tjago.apps.ivonatalker.api.IvonaCredentials;
-import eu.tjago.apps.ivonatalker.api.SpeechCloudSingleton;
-import eu.tjago.apps.ivonatalker.controller.AboutModalController;
-import eu.tjago.apps.ivonatalker.controller.AwsCredentialsController;
-import eu.tjago.apps.ivonatalker.controller.ContentAreaController;
-import eu.tjago.apps.ivonatalker.controller.MainWindowController;
-import eu.tjago.apps.ivonatalker.util.Constants;
-import eu.tjago.apps.ivonatalker.util.CredentialsXmlWrapper;
-import eu.tjago.apps.ivonatalker.util.FileHelper;
+import eu.tjago.apps.pollytalker.api.IvonaCredentials;
+import eu.tjago.apps.pollytalker.api.SpeechCloudSingleton;
+import eu.tjago.apps.pollytalker.controller.AboutModalController;
+import eu.tjago.apps.pollytalker.controller.AwsCredentialsController;
+import eu.tjago.apps.pollytalker.controller.ContentAreaController;
+import eu.tjago.apps.pollytalker.controller.MainWindowController;
+import eu.tjago.apps.pollytalker.util.Constants;
+import eu.tjago.apps.pollytalker.util.CredentialsXmlWrapper;
+import eu.tjago.apps.pollytalker.util.FileHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -32,7 +32,7 @@ import java.util.Optional;
 /**
  * Created by Tomasz on 2015-12-24.
  */
-public class IvonaTalkerApp extends Application {
+public class PollyTalkerApp extends Application {
 
     private Stage primaryStage;
     private BorderPane mainWindowLayout;
@@ -47,12 +47,11 @@ public class IvonaTalkerApp extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("Ivona Talker Application");
+        this.primaryStage.setTitle("Polly Talker Application");
         this.primaryStage.setResizable(false);
 
         initMainWindow();
-        loadCredentials();
-        SpeechCloudSingleton.initSpeechCloudClient(credentials);
+        //loadCredentials();
 
         //after credentials are set init Center Content
         setCenterContent();
@@ -84,7 +83,7 @@ public class IvonaTalkerApp extends Application {
         try {
             // Load root layout from fxml file.
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(IvonaTalkerApp.class.getResource("/view/MainWindow.fxml"));
+            loader.setLocation(PollyTalkerApp.class.getResource("/view/MainWindow.fxml"));
             mainWindowLayout = (BorderPane) loader.load();
 
             // Show the scene containing the root layout.
@@ -117,7 +116,7 @@ public class IvonaTalkerApp extends Application {
         try {
             // Load Content
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(IvonaTalkerApp.class.getResource("/view/ContentArea.fxml"));
+            loader.setLocation(PollyTalkerApp.class.getResource("/view/ContentArea.fxml"));
             AnchorPane centerContent = (AnchorPane) loader.load();
 
             mainWindowLayout.setCenter(centerContent);
@@ -137,7 +136,7 @@ public class IvonaTalkerApp extends Application {
 
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(IvonaTalkerApp.class.getResource("/view/CredentialsModal.fxml"));
+            loader.setLocation(PollyTalkerApp.class.getResource("/view/CredentialsModal.fxml"));
             AnchorPane credentialsDialog = (AnchorPane) loader.load();
 
             // Create Credentials dialog
@@ -167,7 +166,7 @@ public class IvonaTalkerApp extends Application {
 
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(IvonaTalkerApp.class.getResource("/view/AboutModal.fxml"));
+            loader.setLocation(PollyTalkerApp.class.getResource("/view/AboutModal.fxml"));
             AnchorPane aboutDialog = (AnchorPane) loader.load();
 
             // Create Credentials dialog

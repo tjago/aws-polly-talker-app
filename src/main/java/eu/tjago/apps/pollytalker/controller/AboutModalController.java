@@ -1,6 +1,6 @@
-package eu.tjago.apps.ivonatalker.controller;
+package eu.tjago.apps.pollytalker.controller;
 
-import eu.tjago.apps.ivonatalker.IvonaTalkerApp;
+import eu.tjago.apps.pollytalker.PollyTalkerApp;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -13,14 +13,14 @@ import javafx.stage.Stage;
 
 public class AboutModalController {
 
-    private IvonaTalkerApp app;
+    private PollyTalkerApp app;
     private Stage dialogStage;
 
     @FXML
     private ImageView ivonaServiceLogo;
 
 
-    public void setMainApp(IvonaTalkerApp talkerApp) {
+    public void setMainApp(PollyTalkerApp talkerApp) {
         this.app = talkerApp;
     }
 

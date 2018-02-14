@@ -1,4 +1,4 @@
-package eu.tjago.apps.ivonatalker.util;
+package eu.tjago.apps.pollytalker.util;
 
 import javafx.scene.media.MediaPlayer;
 

@@ -1,9 +1,9 @@
-package eu.tjago.apps.ivonatalker.controller;
+package eu.tjago.apps.pollytalker.controller;
 
 import com.amazonaws.AmazonClientException;
-import eu.tjago.apps.ivonatalker.IvonaTalkerApp;
-import eu.tjago.apps.ivonatalker.api.IvonaCredentials;
-import eu.tjago.apps.ivonatalker.api.SpeechCloudSingleton;
+import eu.tjago.apps.pollytalker.PollyTalkerApp;
+import eu.tjago.apps.pollytalker.api.IvonaCredentials;
+import eu.tjago.apps.pollytalker.api.SpeechCloudSingleton;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 
 public class AwsCredentialsController {
 
-    private IvonaTalkerApp app;
+    private PollyTalkerApp app;
     private Stage dialogStage;
 
     @FXML
@@ -28,7 +28,7 @@ public class AwsCredentialsController {
     private PasswordField secretKey;
 
 
-    public void setMainApp(IvonaTalkerApp talkerApp) {
+    public void setMainApp(PollyTalkerApp talkerApp) {
         this.app = talkerApp;
     }
 
@@ -39,11 +39,11 @@ public class AwsCredentialsController {
 
     /**
      * Save credentials to file
+     *
      * @param event
      */
     @FXML
     private void onSave(ActionEvent event) {
-
 
 
         if (accessKey.getLength() > 0 && secretKey.getLength() > 0) {
@@ -58,8 +58,7 @@ public class AwsCredentialsController {
 
 //            Checking if properties are saved
 //            System.getProperties().list(System.out);
-        }
-        else {
+        } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Warning - empty values");
             alert.setHeaderText("Warning");
@@ -73,13 +72,11 @@ public class AwsCredentialsController {
     private void onTest(ActionEvent event) {
         try {
             onSave(event);
-            SpeechCloudSingleton.getInstance().initSpeechCloudClient(app.getCredentials());
-            SpeechCloudSingleton.getInstance().getAllVoicesList();
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Success Authorization");
+            alert.setTitle("Success Save");
             alert.setHeaderText("INFO");
-            alert.setContentText("Your credentials are valid");
+            alert.setContentText("Your credentials are maybe valid");
 
             alert.showAndWait();
         } catch (AmazonClientException e) {
@@ -91,10 +88,7 @@ public class AwsCredentialsController {
 
             alert.showAndWait();
 
-        } finally {
         }
-//        this.onSave(event);
-
     }
 
     @FXML

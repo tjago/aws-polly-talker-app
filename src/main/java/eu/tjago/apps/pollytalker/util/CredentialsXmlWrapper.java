@@ -1,6 +1,6 @@
-package eu.tjago.apps.ivonatalker.util;
+package eu.tjago.apps.pollytalker.util;
 
-import eu.tjago.apps.ivonatalker.api.IvonaCredentials;
+import eu.tjago.apps.pollytalker.api.IvonaCredentials;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

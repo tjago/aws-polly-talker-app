@@ -1,7 +1,7 @@
-package eu.tjago.apps.ivonatalker;
+package eu.tjago.apps.pollytalker;
 
-import eu.tjago.apps.ivonatalker.api.SpeechCloudSingleton;
-import eu.tjago.apps.ivonatalker.util.ThreadedVoicePlayer;
+import eu.tjago.apps.pollytalker.api.SpeechCloudSingleton;
+import eu.tjago.apps.pollytalker.util.ThreadedVoicePlayer;
 import javafx.application.Application;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -24,7 +24,7 @@ public class VoiceThreadTest {
         System.out.printf("About to launch FX App\n");
         Thread t = new Thread("JavaFX Init Thread") {
             public void run() {
-                Application.launch(IvonaTalkerApp.class, new String[0]);
+                Application.launch(PollyTalkerApp.class, new String[0]);
             }
         };
         t.setDaemon(true);

@@ -1,4 +1,4 @@
-package eu.tjago.apps.ivonatalker.api;
+package eu.tjago.apps.pollytalker.api;
 
 import com.amazonaws.auth.AWSCredentials;
 

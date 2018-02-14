@@ -1,6 +1,6 @@
-package eu.tjago.apps.ivonatalker.controller;
+package eu.tjago.apps.pollytalker.controller;
 
-import eu.tjago.apps.ivonatalker.IvonaTalkerApp;
+import eu.tjago.apps.pollytalker.PollyTalkerApp;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
@@ -9,9 +9,9 @@ import javafx.fxml.FXML;
  */
 public class MainWindowController {
 
-    private IvonaTalkerApp app;
+    private PollyTalkerApp app;
 
-    public void setMainApp(IvonaTalkerApp app) {
+    public void setMainApp(PollyTalkerApp app) {
         this.app = app;
     }
 
