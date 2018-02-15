@@ -17,9 +17,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
@@ -62,44 +62,43 @@ public class ContentAreaController {
 
     /**
      * Commounicate with Amazon Cloud Voice service to obtain sound file
+     *
      * @param event
      */
     @FXML
     private void btnReadTextPressed(ActionEvent event) throws InterruptedException {
-        String voiceCode = voicesComboBox.getSelectionModel().getSelectedItem();
-        Optional<InputStream> speechStream = Optional.empty();
+//        String voiceCode = voicesComboBox.getSelectionModel().getSelectedItem();
+        Voice voice = SpeechCloudSingleton.getInstance().getAllVoicesList().get(0);
+        if (threadedVoicePlayer != null) {
+            threadedVoicePlayer.close();
+        }
         try {
-            speechStream.ofNullable(SpeechCloudSingleton.synthesize(textArea.getText(),
+            Optional<InputStream> speechStream
+                    = Optional.ofNullable(SpeechCloudSingleton.synthesize(textArea.getText(),
                     OutputFormat.Mp3,
-                    SpeechCloudSingleton.getInstance().getAllVoicesList().get(0))
+                    voice
+                    )
             );
+            speechStream.ifPresent(ContentAreaController::doSaveFile);
         } catch (IOException e) {
             System.out.println("Exception Error: " + e.getMessage());
-            e.printStackTrace();
         }
 
-//        Media audioMedia = new Media(Paths.get(SpeechCloudSingleton.getTmpSpeechFilename())
-//                .toUri()
-//                .toString());
-//
-//        this.threadedVoicePlayer = new ThreadedVoicePlayer(new MediaPlayer(audioMedia));
-//
-//        threadedVoicePlayer.run();
-        speechStream.ifPresent(inputStream -> doSaveFile(inputStream));
+        Media audioMedia = new Media(Paths.get(SpeechCloudSingleton.getTmpSpeechFilename())
+                .toUri()
+                .toString());
 
+        this.threadedVoicePlayer = new ThreadedVoicePlayer(new MediaPlayer(audioMedia));
+
+        threadedVoicePlayer.run();
     }
 
-    static void doSaveFile(InputStream s) {
-
-        File targetFile = new File("speech.mp3");
-
+    static void doSaveFile(InputStream stream) {
         try {
-            java.nio.file.Files.copy(
-                    s,
-                    targetFile.toPath(),
-                    StandardCopyOption.REPLACE_EXISTING);
+            Path path = Paths.get(SpeechCloudSingleton.getTmpSpeechFilename());
+            java.nio.file.Files.copy(stream, path, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error occured while saving the file: " + e.getLocalizedMessage());
         }
     }
 

@@ -1,17 +1,17 @@
-package eu.tjago.apps.pollytalker.api;
+package eu.tjago.apps.pollytalker.model;
 
 import com.amazonaws.auth.AWSCredentials;
 
 /**
  * Created by Tomasz on 2016-01-06.
  */
-public class IvonaCredentials implements AWSCredentials{
+public class PollyCredentials implements AWSCredentials{
     private String accessKey;
     private String secretKey;
 
-    public IvonaCredentials() {}
+    public PollyCredentials() {}
 
-    public IvonaCredentials(String accessKey, String secretKey) {
+    public PollyCredentials(String accessKey, String secretKey) {
         this.accessKey = accessKey;
         this.secretKey = secretKey;
     }
@@ -20,7 +20,7 @@ public class IvonaCredentials implements AWSCredentials{
         return accessKey;
     }
 
-    public IvonaCredentials setAccessKey(String accessKey) {
+    public PollyCredentials setAccessKey(String accessKey) {
         this.accessKey = accessKey;
         return this;
     }
@@ -29,7 +29,7 @@ public class IvonaCredentials implements AWSCredentials{
         return secretKey;
     }
 
-    public IvonaCredentials setSecretKey(String secretKey) {
+    public PollyCredentials setSecretKey(String secretKey) {
         this.secretKey = secretKey;
         return this;
     }

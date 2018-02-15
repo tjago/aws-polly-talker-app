@@ -1,6 +1,6 @@
 package eu.tjago.apps.pollytalker;
 
-import eu.tjago.apps.pollytalker.api.IvonaCredentials;
+import eu.tjago.apps.pollytalker.model.PollyCredentials;
 import eu.tjago.apps.pollytalker.api.SpeechCloudSingleton;
 import eu.tjago.apps.pollytalker.controller.AboutModalController;
 import eu.tjago.apps.pollytalker.controller.AwsCredentialsController;
@@ -36,7 +36,7 @@ public class PollyTalkerApp extends Application {
 
     private Stage primaryStage;
     private BorderPane mainWindowLayout;
-    private IvonaCredentials credentials;
+    private PollyCredentials credentials;
 
     public static void main(String[] args) {
         System.out.println("working dir: "  + System.getProperty("user.dir") );
@@ -103,12 +103,12 @@ public class PollyTalkerApp extends Application {
 //       loadCredentials();
     }
 
-    public void setCredentials(IvonaCredentials credentials) {
+    public void setCredentials(PollyCredentials credentials) {
         this.credentials = credentials;
         saveCredentialsToFile(credentials);
     }
 
-    public IvonaCredentials getCredentials() {
+    public PollyCredentials getCredentials() {
         return credentials;
     }
 
@@ -200,7 +200,7 @@ public class PollyTalkerApp extends Application {
      * Saves user and pass to xml file
      * @param credentials
      */
-    public void saveCredentialsToFile(IvonaCredentials credentials) {
+    public void saveCredentialsToFile(PollyCredentials credentials) {
 
         File file = new File(Constants.CREDENTIALS_XML_FILENAME);
         try {

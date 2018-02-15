@@ -1,7 +1,7 @@
 package eu.tjago.apps.pollytalker.util;
 
 import eu.tjago.apps.pollytalker.PollyTalkerApp;
-import eu.tjago.apps.pollytalker.api.IvonaCredentials;
+import eu.tjago.apps.pollytalker.model.PollyCredentials;
 import javafx.scene.control.Alert;
 
 import javax.xml.bind.JAXBContext;
@@ -18,7 +18,7 @@ public class FileHelper {
     /**
      * Load user and pass from xml file
      */
-    public static IvonaCredentials loadCredentialsFromFile(String filename) {
+    public static PollyCredentials loadCredentialsFromFile(String filename) {
 
         File file = new File(filename);
         try {
@@ -71,4 +71,5 @@ public class FileHelper {
             return null;
         }
     }
+
 }

@@ -2,8 +2,7 @@ package eu.tjago.apps.pollytalker.controller;
 
 import com.amazonaws.AmazonClientException;
 import eu.tjago.apps.pollytalker.PollyTalkerApp;
-import eu.tjago.apps.pollytalker.api.IvonaCredentials;
-import eu.tjago.apps.pollytalker.api.SpeechCloudSingleton;
+import eu.tjago.apps.pollytalker.model.PollyCredentials;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -52,7 +51,7 @@ public class AwsCredentialsController {
 //            System.setProperty(SECRET_KEY_ENV_VAR, secretKey.getText());
 
             app.setCredentials(
-                    new IvonaCredentials(accessKey.getText(),
+                    new PollyCredentials(accessKey.getText(),
                             secretKey.getText())
             );
 

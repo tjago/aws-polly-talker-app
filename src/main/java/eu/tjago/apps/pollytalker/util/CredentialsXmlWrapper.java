@@ -1,6 +1,6 @@
 package eu.tjago.apps.pollytalker.util;
 
-import eu.tjago.apps.pollytalker.api.IvonaCredentials;
+import eu.tjago.apps.pollytalker.model.PollyCredentials;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -12,21 +12,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "credentialsRoot")
 public class CredentialsXmlWrapper {
 
-    private IvonaCredentials credentials;
+    private PollyCredentials credentials;
 
     public CredentialsXmlWrapper() {
     }
 
-    public CredentialsXmlWrapper(IvonaCredentials credentials) {
+    public CredentialsXmlWrapper(PollyCredentials credentials) {
         this.credentials = credentials;
     }
 
     @XmlElement(name = "credentials")
-    public IvonaCredentials getCredentials() {
+    public PollyCredentials getCredentials() {
         return credentials;
     }
 
-    public void setCredentials(IvonaCredentials credentials) {
+    public void setCredentials(PollyCredentials credentials) {
         this.credentials = credentials;
     }
 }
