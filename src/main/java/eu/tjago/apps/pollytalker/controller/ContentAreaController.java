@@ -18,10 +18,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
@@ -81,7 +79,10 @@ public class ContentAreaController {
                             OutputFormat.Mp3,
                             voice.get())
             );
-            speechStream.ifPresent((InputStream is) -> ContentAreaController.doSaveFile(is, filename));
+            speechStream.ifPresent((InputStream is) -> {
+                ContentAreaController.doSaveFile(is, filename);
+                SpeechCloudSingleton.setLastSavedFileLoc(Paths.get(filename));
+            });
         } catch (IOException e) {
             System.out.println("Exception Error: " + e.getMessage());
         }
@@ -109,7 +110,7 @@ public class ContentAreaController {
      */
     @FXML
     private void handleSave() {
-        appInstance.saveVoiceToFile();
+        appInstance.saveVoiceFileToUserSpecifiedLocation(SpeechCloudSingleton.getLastSavedFileLoc().get());
     }
 
     /**

@@ -9,6 +9,7 @@ import com.amazonaws.services.polly.AmazonPollyClient;
 import com.amazonaws.services.polly.model.*;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +22,7 @@ public class SpeechCloudSingleton {
 
     private static volatile SpeechCloudSingleton instance;
     private static volatile AmazonPollyClient pollyClient;
-    public static final String TMP_SPEECH_FILE = "tmpSpeechFile.mp3";
+    private static volatile Path lastSavedFileLoc;
 
     private SpeechCloudSingleton() {
     }
@@ -75,24 +76,14 @@ public class SpeechCloudSingleton {
         return synthRes.getAudioStream();
     }
 
-    public static String getTmpSpeechFilename() {
-        return TMP_SPEECH_FILE;
-    }
-
-    public static File getTmpSpeechFile() {
-        return new File(TMP_SPEECH_FILE);
-    }
-
-    public static void saveToFile(InputStream speechStream) {
-
-        try {
-            java.nio.file.Files.copy(
-                    speechStream,
-                    getTmpSpeechFile().toPath(),
-                    StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            System.out.println("encountered error when saving speech stream to file: " + e.getMessage());
-//            e.printStackTrace();
+    public static Optional<Path> getLastSavedFileLoc() {
+        if (lastSavedFileLoc != null) {
+            return Optional.of(lastSavedFileLoc);
         }
+        return Optional.empty();
+    }
+
+    public static void setLastSavedFileLoc(Path location) {
+        lastSavedFileLoc = location;
     }
 }

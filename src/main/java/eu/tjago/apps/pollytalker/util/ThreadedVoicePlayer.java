@@ -16,7 +16,7 @@ public class ThreadedVoicePlayer implements Runnable, AutoCloseable {
     }
 
     public void halt() {
-        mediaPlayer.stop();
+        this.close();
         voiceThread.interrupt();
     }
 

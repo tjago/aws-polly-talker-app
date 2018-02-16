@@ -1,6 +1,7 @@
 package eu.tjago.apps.pollytalker.controller;
 
 import eu.tjago.apps.pollytalker.PollyTalkerApp;
+import eu.tjago.apps.pollytalker.api.SpeechCloudSingleton;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
@@ -34,6 +35,6 @@ public class MainWindowController {
     }
 
     public void handleSave(ActionEvent actionEvent) {
-        app.saveVoiceToFile();
+        app.saveVoiceFileToUserSpecifiedLocation(SpeechCloudSingleton.getLastSavedFileLoc().get());
     }
 }

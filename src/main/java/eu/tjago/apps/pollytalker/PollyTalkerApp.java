@@ -67,11 +67,11 @@ public class PollyTalkerApp extends Application {
         //FIXME release player resource file
 
         // remove temporary .mp3 file
-        Path path = SpeechCloudSingleton.getTmpSpeechFile().toPath();
+//        Path path = SpeechCloudSingleton.getTmpSpeechFile().toPath();
 
-        if (Files.exists(path)) {
-            Files.delete(SpeechCloudSingleton.getTmpSpeechFile().toPath());
-        }
+//        if (Files.exists(path)) {
+//            Files.delete(SpeechCloudSingleton.getTmpSpeechFile().toPath());
+//        }
 
         Platform.exit();
     }
@@ -223,7 +223,7 @@ public class PollyTalkerApp extends Application {
         }
     }
 
-    public void saveVoiceToFile() {
+    public void saveVoiceFileToUserSpecifiedLocation(Path location) {
         FileChooser fileChooser = new FileChooser();
 
         // Set extension filter
@@ -246,7 +246,7 @@ public class PollyTalkerApp extends Application {
                 file = new File(file.getPath() + ".mp3");
             }
             try {
-                Files.copy(SpeechCloudSingleton.getTmpSpeechFile().toPath(),
+                Files.copy(location,
                         file.toPath(),
                         StandardCopyOption.REPLACE_EXISTING);
                 FileHelper.setLastSavedLocation(file);
