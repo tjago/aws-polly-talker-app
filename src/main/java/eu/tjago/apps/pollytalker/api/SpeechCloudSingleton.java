@@ -11,6 +11,7 @@ import com.amazonaws.services.polly.model.*;
 import java.io.*;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Tomasz on 2016-01-06.
@@ -58,6 +59,12 @@ public class SpeechCloudSingleton {
         return pollyClient.describeVoices(new DescribeVoicesRequest()).getVoices();
     }
 
+    public static Optional<Voice> getVoicebyName(String voiceName) {
+        List<Voice> voices = pollyClient.describeVoices(new DescribeVoicesRequest()).getVoices();
+        return voices.stream()
+                .filter(voice -> voice.getName().equals(voiceName))
+                .findFirst();
+    }
 
     public static InputStream synthesize(String text, OutputFormat format, Voice voice) throws IOException {
         SynthesizeSpeechRequest synthReq =

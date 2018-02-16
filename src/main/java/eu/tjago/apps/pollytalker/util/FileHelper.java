@@ -3,11 +3,15 @@ package eu.tjago.apps.pollytalker.util;
 import eu.tjago.apps.pollytalker.PollyTalkerApp;
 import eu.tjago.apps.pollytalker.model.PollyCredentials;
 import javafx.scene.control.Alert;
+import org.joda.time.LocalDate;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.FileReader;
+import java.time.LocalDateTime;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.util.prefs.Preferences;
 
 /**
@@ -30,7 +34,7 @@ public class FileHelper {
 
             return credentialsXmlWrapper.getCredentials();
 
-        } catch (Exception e) { // catches ANY exception
+        } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("Could not load data from file:\n" + file.getPath());
@@ -60,9 +64,9 @@ public class FileHelper {
      * The preference is read from the OS specific registry. If no such
      * preference can be found, null is returned.
      *
-     * @return
+     * @return file
      */
-    public static File getLastSavedLocation() {
+    public static File getLastSavedLocation() { //TODO: convert to Optional
         Preferences prefs = Preferences.userNodeForPackage(PollyTalkerApp.class);
         String filePath = prefs.get("filePath", null);
         if (filePath != null) {
@@ -70,6 +74,22 @@ public class FileHelper {
         } else {
             return null;
         }
+    }
+
+    /**
+     * generates a filename based on local date time
+     * ex. recordings/rec-15_Feb-14_15_14.mp3
+     * @return
+     */
+    public static String generateUniqueRecordingFilename() {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        return  "recordings\\rec-"
+                + localDateTime.getDayOfMonth()
+                + "_" + localDateTime.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
+                + "-" + localDateTime.getHour()
+                + "_" + localDateTime.getMinute()
+                + "_" + localDateTime.getSecond()
+                + ".mp3";
     }
 
 }
