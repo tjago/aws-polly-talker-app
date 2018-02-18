@@ -1,13 +1,13 @@
 package eu.tjago.apps.pollytalker;
 
-import eu.tjago.apps.pollytalker.model.PollyCredentials;
-import eu.tjago.apps.pollytalker.api.SpeechCloudSingleton;
+import com.amazonaws.regions.Region;
+import eu.tjago.apps.pollytalker.api.AwsClientSingleton;
 import eu.tjago.apps.pollytalker.controller.AboutModalController;
 import eu.tjago.apps.pollytalker.controller.AwsCredentialsController;
 import eu.tjago.apps.pollytalker.controller.ContentAreaController;
 import eu.tjago.apps.pollytalker.controller.MainWindowController;
+import eu.tjago.apps.pollytalker.model.PollyCredentials;
 import eu.tjago.apps.pollytalker.util.Constants;
-import eu.tjago.apps.pollytalker.util.CredentialsXmlWrapper;
 import eu.tjago.apps.pollytalker.util.FileHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -20,8 +20,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,61 +28,50 @@ import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 /**
- * Created by Tomasz on 2015-12-24.
+ * Created by tjago
  */
 public class PollyTalkerApp extends Application {
 
     private Stage primaryStage;
     private BorderPane mainWindowLayout;
     private PollyCredentials credentials;
+    private ContentAreaController interfaceController;
 
     public static void main(String[] args) {
-        System.out.println("working dir: "  + System.getProperty("user.dir") );
+        System.out.println("working dir: " + System.getProperty("user.dir"));
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("Polly Talker Application");
-        this.primaryStage.setResizable(false);
-
-        initMainWindow();
-        //loadCredentials();
-
-        //after credentials are set init Center Content
-        setCenterContent();
+        loadCredentials();
+        initMainWindow(primaryStage);
+        initCenterInterface();
     }
 
     /**
      * Exit program
-     * @throws Exception
      */
     @Override
-    public void stop() throws Exception {
-
-        //FIXME release player resource file
-
-        // remove temporary .mp3 file
-//        Path path = SpeechCloudSingleton.getTmpSpeechFile().toPath();
-
-//        if (Files.exists(path)) {
-//            Files.delete(SpeechCloudSingleton.getTmpSpeechFile().toPath());
-//        }
-
+    public void stop() {
         Platform.exit();
     }
 
     /**
      * Initializes the root layout.
      */
-    public void initMainWindow() {
+    private void initMainWindow(Stage primaryStage) {
+
+        this.primaryStage = primaryStage;
+        this.primaryStage.setTitle("Polly Talker Application");
+        this.primaryStage.setResizable(false);
+
         try {
             // Load root layout from fxml file.
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(PollyTalkerApp.class.getResource("/view/MainWindow.fxml"));
-            mainWindowLayout = (BorderPane) loader.load();
+            mainWindowLayout = loader.load();
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(mainWindowLayout);
@@ -99,30 +86,36 @@ public class PollyTalkerApp extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //try to
-//       loadCredentials();
     }
 
     public void setCredentials(PollyCredentials credentials) {
         this.credentials = credentials;
-        saveCredentialsToFile(credentials);
+    }
+
+    /**
+     * Saves credentials and re-initializes AWS Client
+     */
+    public void saveCredentials() {
+        saveCredentialsToFile(credentials, new File(Constants.CREDENTIALS_FILENAME));
+        AwsClientSingleton.getInstance().initAwsPollyClient(Region.getRegion(Constants.DEFAULT_AWS_REGION));
+        interfaceController.initialize();
     }
 
     public PollyCredentials getCredentials() {
         return credentials;
     }
 
-    public void setCenterContent() {
+    private void initCenterInterface() {
         try {
             // Load Content
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(PollyTalkerApp.class.getResource("/view/ContentArea.fxml"));
-            AnchorPane centerContent = (AnchorPane) loader.load();
+            AnchorPane centerContent = loader.load();
 
             mainWindowLayout.setCenter(centerContent);
 
             // Give the controller access to the main app.
-            ContentAreaController controller = loader.getController();
+            ContentAreaController controller = interfaceController = loader.getController();
             controller.setMainApp(this);
         } catch (IOException e) {
             e.printStackTrace();
@@ -137,7 +130,7 @@ public class PollyTalkerApp extends Application {
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(PollyTalkerApp.class.getResource("/view/CredentialsModal.fxml"));
-            AnchorPane credentialsDialog = (AnchorPane) loader.load();
+            AnchorPane credentialsDialog = loader.load();
 
             // Create Credentials dialog
             Stage dialogStage = new Stage();
@@ -148,7 +141,6 @@ public class PollyTalkerApp extends Application {
             Scene scene = new Scene(credentialsDialog);
             dialogStage.setScene(scene);
             dialogStage.show();
-
 
             AwsCredentialsController controller = loader.getController();
             controller.setMainApp(this);
@@ -167,7 +159,7 @@ public class PollyTalkerApp extends Application {
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(PollyTalkerApp.class.getResource("/view/AboutModal.fxml"));
-            AnchorPane aboutDialog = (AnchorPane) loader.load();
+            AnchorPane aboutDialog = loader.load();
 
             // Create Credentials dialog
             Stage dialogStage = new Stage();
@@ -190,34 +182,27 @@ public class PollyTalkerApp extends Application {
     }
 
     /**
-     * Load Ivona Cloud Api Credentials
+     * Load AWS Polly Api Credentials
      */
-    public void loadCredentials() {
-        this.credentials = FileHelper.loadCredentialsFromFile(Constants.CREDENTIALS_XML_FILENAME);
+    private void loadCredentials() {
+        this.credentials = FileHelper.loadCredentialsFromFile(Constants.CREDENTIALS_FILENAME);
     }
 
     /**
      * Saves user and pass to xml file
-     * @param credentials
+     *
+     * @param credentials user credentials
+     * @param file specified location of file to be saved
      */
-    public void saveCredentialsToFile(PollyCredentials credentials) {
+    private void saveCredentialsToFile(PollyCredentials credentials, File file) {
 
-        File file = new File(Constants.CREDENTIALS_XML_FILENAME);
-        try {
+        boolean fileSavedSuccessfully = FileHelper.saveCredentialsToFile(credentials, file);
 
-            JAXBContext context = JAXBContext.newInstance(CredentialsXmlWrapper.class);
-            Marshaller m = context.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-            // Marshalling and saving XML to the file.
-            m.marshal(new CredentialsXmlWrapper(credentials), file);
-
-        } catch (Exception e) { // catches ANY exception
+        if (!fileSavedSuccessfully) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("Could not save data");
-            alert.setContentText("Could not save data to file:\n" + file.getPath());
-            e.printStackTrace();
+            alert.setContentText("Could not save data to file:\n" + Constants.CREDENTIALS_FILENAME);
 
             alert.showAndWait();
         }
@@ -233,9 +218,7 @@ public class PollyTalkerApp extends Application {
         //set init Dir upon opening Dialog
         Optional<File> initialPath = Optional.ofNullable(FileHelper.getLastSavedLocation());
 
-        if (initialPath.isPresent()) {
-            fileChooser.setInitialDirectory(initialPath.get());
-        }
+        initialPath.ifPresent(fileChooser::setInitialDirectory);
 
         // Show save file dialog
         File file = fileChooser.showSaveDialog(this.primaryStage);
@@ -255,9 +238,5 @@ public class PollyTalkerApp extends Application {
                 e.printStackTrace();
             }
         }
-    }
-
-    public Stage getPrimaryStage() {
-        return primaryStage;
     }
 }

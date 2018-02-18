@@ -1,7 +1,8 @@
 package eu.tjago.apps.pollytalker.controller;
 
-import com.amazonaws.AmazonClientException;
+import com.amazonaws.SdkClientException;
 import eu.tjago.apps.pollytalker.PollyTalkerApp;
+import eu.tjago.apps.pollytalker.api.AwsClientSingleton;
 import eu.tjago.apps.pollytalker.model.PollyCredentials;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,7 +13,7 @@ import javafx.stage.Stage;
 
 
 /**
- * Created by Tomasz on 2016-01-03.
+ * Created by tjago
  */
 
 public class AwsCredentialsController {
@@ -32,61 +33,63 @@ public class AwsCredentialsController {
     }
 
     @FXML
-    private void initialize() {
-        //set img
+    private void start() {
+        //set img //FIXME
     }
 
     /**
-     * Save credentials to file
+     * Save credentials action
      *
      * @param event
      */
     @FXML
     private void onSave(ActionEvent event) {
 
-
         if (accessKey.getLength() > 0 && secretKey.getLength() > 0) {
-
-//            System.setProperty(ACCESS_KEY_ENV_VAR, accessKey.getText());
-//            System.setProperty(SECRET_KEY_ENV_VAR, secretKey.getText());
-
             app.setCredentials(
-                    new PollyCredentials(accessKey.getText(),
-                            secretKey.getText())
+                    new PollyCredentials(accessKey.getText(), secretKey.getText())
             );
-
-//            Checking if properties are saved
-//            System.getProperties().list(System.out);
+            app.saveCredentials();
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Warning - empty values");
             alert.setHeaderText("Warning");
             alert.setContentText("Please fill the credential form");
-
             alert.showAndWait();
         }
     }
 
     @FXML
     private void onTest(ActionEvent event) {
+        if (accessKey.toString().isEmpty() ||  secretKey.toString().isEmpty()) {
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Missing credentials");
+            alert.setHeaderText("WARNING");
+            alert.setContentText("Missing access key or secret key - please fill the fields.");
+            return;
+        }
         try {
-            onSave(event);
+            app.setCredentials(
+                    new PollyCredentials(accessKey.getText(), secretKey.getText())
+            );
+            // If we can get voices list from AWS client we are all good, otherwise exception is thrown
+            AwsClientSingleton.getInstance().getAllVoicesList();
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Success Save");
             alert.setHeaderText("INFO");
-            alert.setContentText("Your credentials are maybe valid");
+            alert.setContentText("Your credentials are valid");
 
             alert.showAndWait();
-        } catch (AmazonClientException e) {
+        } catch (SdkClientException e) {
 
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error - Could not Authenticate");
-            alert.setHeaderText("INFO");
-            alert.setContentText(e.getMessage());
+            alert.setHeaderText("Warning");
+            alert.setContentText("Credentials are incorrect");
 
             alert.showAndWait();
-
         }
     }
 
@@ -97,5 +100,10 @@ public class AwsCredentialsController {
 
     public void setStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
+
+        if (app.getCredentials().initialized()) {
+            this.accessKey.setText(app.getCredentials().getAWSAccessKeyId());
+            this.secretKey.setText(app.getCredentials().getAWSSecretKey());
+        }
     }
 }

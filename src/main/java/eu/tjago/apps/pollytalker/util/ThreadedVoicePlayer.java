@@ -3,7 +3,7 @@ package eu.tjago.apps.pollytalker.util;
 import javafx.scene.media.MediaPlayer;
 
 /**
- * Created by tjago on 2016-02-24.
+ * Created by tjago
  */
 public class ThreadedVoicePlayer implements Runnable, AutoCloseable {
 

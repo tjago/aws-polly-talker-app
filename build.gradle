@@ -9,12 +9,10 @@ buildscript {
 }
 plugins {
     id 'java' // or 'groovy' Must be explicitly applied
-//    id 'com.github.johnrengelman.shadow' version '1.2.2'
 }
 
 apply plugin: 'java'
 apply plugin: 'application'
-//apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: "io.spring.dependency-management"
 
 repositories {

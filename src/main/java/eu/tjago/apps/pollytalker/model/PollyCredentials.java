@@ -3,44 +3,44 @@ package eu.tjago.apps.pollytalker.model;
 import com.amazonaws.auth.AWSCredentials;
 
 /**
- * Created by Tomasz on 2016-01-06.
+ * Substitution class
+ * Can't use existing BasicAWSCredentials class here
+ * as JAXB requires default constructor and all setters and getters
+ *
+ * Created by tjago
  */
 public class PollyCredentials implements AWSCredentials{
-    private String accessKey;
-    private String secretKey;
+    private String AWSAccessKeyId;
+    private String AWSSecretKey;
 
     public PollyCredentials() {}
 
-    public PollyCredentials(String accessKey, String secretKey) {
-        this.accessKey = accessKey;
-        this.secretKey = secretKey;
-    }
-
-    public String getAccessKey() {
-        return accessKey;
-    }
-
-    public PollyCredentials setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
-        return this;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
-    }
-
-    public PollyCredentials setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-        return this;
+    public PollyCredentials(String AWSAccessKeyId, String AWSSecretKey) {
+        this.AWSAccessKeyId = AWSAccessKeyId;
+        this.AWSSecretKey = AWSSecretKey;
     }
 
     @Override
     public String getAWSAccessKeyId() {
-        return this.getAccessKey();
+        return this.AWSAccessKeyId;
     }
 
     @Override
     public String getAWSSecretKey() {
-        return this.getSecretKey();
+        return this.AWSSecretKey;
+    }
+
+    public void setAWSAccessKeyId(String AWSAccessKeyId) {
+        this.AWSAccessKeyId = AWSAccessKeyId;
+        System.setProperty("aws.accessKeyId", AWSAccessKeyId);
+    }
+
+    public void setAWSSecretKey(String AWSSecretKey) {
+        this.AWSSecretKey = AWSSecretKey;
+        System.setProperty("aws.secretKey", AWSSecretKey);
+    }
+
+    public boolean initialized() {
+        return !getAWSAccessKeyId().isEmpty() && !getAWSSecretKey().isEmpty();
     }
 }

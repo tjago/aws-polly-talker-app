@@ -1,10 +1,9 @@
 package eu.tjago.apps.pollytalker.controller;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.polly.model.OutputFormat;
 import com.amazonaws.services.polly.model.Voice;
 import eu.tjago.apps.pollytalker.PollyTalkerApp;
-import eu.tjago.apps.pollytalker.api.SpeechCloudSingleton;
+import eu.tjago.apps.pollytalker.api.AwsClientSingleton;
 import eu.tjago.apps.pollytalker.util.Constants;
 import eu.tjago.apps.pollytalker.util.FileHelper;
 import eu.tjago.apps.pollytalker.util.ThreadedVoicePlayer;
@@ -20,13 +19,13 @@ import javafx.scene.media.MediaPlayer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by Tomasz on 2015-12-29.
+ * Created by tjago
  */
 public class ContentAreaController {
 
@@ -44,14 +43,11 @@ public class ContentAreaController {
     private ComboBox<String> voicesComboBox;
 
     @FXML
-    private void initialize() {
-        try {
-            this.voicesList = SpeechCloudSingleton.getInstance().getAllVoicesList();
+    public void initialize() {
+        this.voicesList = AwsClientSingleton.getInstance().getAllVoicesList();
+        if (!this.voicesList.isEmpty()) {
             setLanguageCombobox();
             setVoiceCombobox();
-
-        } catch (AmazonServiceException asEx) {
-            System.out.println(" Warning: Wrong Credentials");
         }
     }
 
@@ -68,49 +64,55 @@ public class ContentAreaController {
     @FXML
     private void btnReadTextPressed(ActionEvent event) throws InterruptedException {
         String voiceName = voicesComboBox.getSelectionModel().getSelectedItem();
-        Optional<Voice> voice = SpeechCloudSingleton.getInstance().getVoicebyName(voiceName);
-        String filename = FileHelper.generateUniqueRecordingFilename();
+        Optional<Voice> voice = AwsClientSingleton.getInstance().getVoiceByName(voiceName);
+        Path filepath = FileHelper.generateUniqueRecordingFilename();
         if (threadedVoicePlayer != null) {
             threadedVoicePlayer.close();
         }
         try {
-            Optional<InputStream> speechStream = Optional.ofNullable(SpeechCloudSingleton.synthesize(
-                            textArea.getText(),
-                            OutputFormat.Mp3,
-                            voice.get())
+            Optional<InputStream> speechStream = Optional.ofNullable(AwsClientSingleton.synthesize(
+                    textArea.getText(),
+                    OutputFormat.Mp3,
+                    voice.get())
             );
             speechStream.ifPresent((InputStream is) -> {
-                ContentAreaController.doSaveFile(is, filename);
-                SpeechCloudSingleton.setLastSavedFileLoc(Paths.get(filename));
+                ContentAreaController.doSaveFile(is, filepath);
+                AwsClientSingleton.setLastSavedFileLoc(filepath);
             });
         } catch (IOException e) {
             System.out.println("Exception Error: " + e.getMessage());
         }
 
-        playSoundFileStream(filename);
-    }
-
-    private void playSoundFileStream(String filename) {
-        Media audioMedia = new Media(Paths.get(filename)
-                .toUri()
-                .toString());
+        Media audioMedia = new Media(filepath.toUri().toString());
         new ThreadedVoicePlayer(new MediaPlayer(audioMedia)).run();
     }
 
-    private static void doSaveFile(InputStream stream, String filename) {
+    /**
+     * Helper method to avoid catching exception in lambda function
+     *
+     * @param stream
+     * @param filepath
+     */
+
+    private static void doSaveFile(InputStream stream, Path filepath) {
         try {
-            java.nio.file.Files.copy(stream, Paths.get(filename), StandardCopyOption.REPLACE_EXISTING);
+            java.nio.file.Files.copy(stream, filepath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             System.out.println("Error occured while saving the file: " + e.getLocalizedMessage());
         }
     }
 
     /**
-     * Opens a FileChooser to let save MP3 file
+     * Opens a FileChooser window to let save MP3 file,
+     * it actually just copies the previously saved file to a new, user defined location.
      */
     @FXML
     private void handleSave() {
-        appInstance.saveVoiceFileToUserSpecifiedLocation(SpeechCloudSingleton.getLastSavedFileLoc().get());
+        if (AwsClientSingleton.getLastSavedFileLoc().isPresent()) {
+            appInstance.saveVoiceFileToUserSpecifiedLocation(AwsClientSingleton.getLastSavedFileLoc().get());
+        } else {
+            //TODO display pop-up to play file first
+        }
     }
 
     /**
@@ -118,11 +120,11 @@ public class ContentAreaController {
      */
     private void setVoiceCombobox() {
 
-        String pickedLanguage = languageComboBox.getSelectionModel().getSelectedItem().toString();
+        String pickedLanguageName = languageComboBox.getSelectionModel().getSelectedItem().toString();
         ObservableList<String> voicesObsList = FXCollections.observableArrayList();
 
         for (Voice voice : voicesList) {
-            if (voice.getLanguageCode().equals(pickedLanguage)) {
+            if (voice.getLanguageName().equals(pickedLanguageName)) {
                 voicesObsList.add(voice.getName());
             }
         }
@@ -134,9 +136,8 @@ public class ContentAreaController {
     private void setLanguageCombobox() {
         ObservableSet<String> languagesSet = FXCollections.observableSet();
 
-        for (Voice voice : voicesList) {
-            languagesSet.add(voice.getLanguageCode());
-        }
+        voicesList.stream()
+                .forEach(item -> languagesSet.add(item.getLanguageName()));
 
         languageComboBox.setItems(FXCollections.observableArrayList(languagesSet));
         if (languageComboBox.getItems().contains(Constants.PREFERED_LANGUAGE)) {
@@ -151,8 +152,8 @@ public class ContentAreaController {
         super.finalize();
     }
 
-    public void setMainApp(PollyTalkerApp ivonaTalkerApp) {
-        this.appInstance = ivonaTalkerApp;
+    public void setMainApp(PollyTalkerApp pollyTalkerApp) {
+        this.appInstance = pollyTalkerApp;
     }
 
 

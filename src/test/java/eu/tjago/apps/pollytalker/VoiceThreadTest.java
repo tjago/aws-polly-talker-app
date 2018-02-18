@@ -1,14 +1,6 @@
 package eu.tjago.apps.pollytalker;
 
-import eu.tjago.apps.pollytalker.api.SpeechCloudSingleton;
-import eu.tjago.apps.pollytalker.util.ThreadedVoicePlayer;
 import javafx.application.Application;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-
-import java.nio.file.Paths;
-
-import static org.junit.Assert.assertNotEquals;
 
 /**
  * Created by tjago on 2016-03-07.
@@ -37,17 +29,17 @@ public class VoiceThreadTest {
 
 //    @Test
     public void RunAndKillThread() throws InterruptedException {
-        Media audioMedia = new Media(Paths.get(SpeechCloudSingleton.getTmpSpeechFilename())
-                .toUri()
-                .toString());
+//        Media audioMedia = new Media(Paths.get(AwsClientSingleton.getTmpSpeechFilename())
+//                .toUri()
+//                .toString());
 
 
-        ThreadedVoicePlayer vp = new ThreadedVoicePlayer(new MediaPlayer(audioMedia));
-
-        vp.run();
-        Thread.sleep(2000);
-        vp.halt();
-
-        assertNotEquals(vp, null);
+//        ThreadedVoicePlayer vp = new ThreadedVoicePlayer(new MediaPlayer(audioMedia));
+//
+//        vp.run();
+//        Thread.sleep(2000);
+//        vp.halt();
+//
+//        assertNotEquals(vp, null);
     }
 }

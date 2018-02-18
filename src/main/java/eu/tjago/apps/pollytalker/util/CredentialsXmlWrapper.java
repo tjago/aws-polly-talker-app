@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Created by Tomasz on 2016-02-15.
+ * Created by tjago
  */
 
 @XmlRootElement(name = "credentialsRoot")

@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 
 /**
- * Created by Tomasz on 2016-01-03.
+ * Created by tjago
  */
 
 public class AboutModalController {
@@ -25,7 +25,7 @@ public class AboutModalController {
     }
 
     @FXML
-    private void initialize() {
+    private void initialize() {//FIXME
 //            File file = new File(AboutModalController.class.getResource("/img/ivona_tts_amzn.png").getFile());
 //            Image image = new Image(file.toURI().toString());
 //            Image image = new Image(AboutModalController.class.getResource("/img/ivona_tts_amzn.png").toString());

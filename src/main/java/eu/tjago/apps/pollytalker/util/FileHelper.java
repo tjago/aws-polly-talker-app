@@ -3,24 +3,46 @@ package eu.tjago.apps.pollytalker.util;
 import eu.tjago.apps.pollytalker.PollyTalkerApp;
 import eu.tjago.apps.pollytalker.model.PollyCredentials;
 import javafx.scene.control.Alert;
-import org.joda.time.LocalDate;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.prefs.Preferences;
 
 /**
- * Created by Tomasz on 2016-02-18.
+ * Created by tjago
  */
 public class FileHelper {
 
+
     /**
-     * Load user and pass from xml file
+     * Using JAXB from JDK saving the credentials to file in convenient xml format
+     * @param credentials
+     * @param file
+     * @return
+     */
+    public static boolean saveCredentialsToFile(PollyCredentials credentials, File file) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(CredentialsXmlWrapper.class);
+            Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            m.marshal(new CredentialsXmlWrapper(credentials), file);
+            return true;
+
+        } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
+            return false;
+        }
+    }
+    /**
+     * Load credentials from xml file
      */
     public static PollyCredentials loadCredentialsFromFile(String filename) {
 
@@ -49,7 +71,7 @@ public class FileHelper {
 
     /**
      * Saves the file path to the registry.
-     * @param file
+     * @param file last file location
      */
     public static void setLastSavedLocation(File file) {
         Preferences prefs = Preferences.userNodeForPackage(PollyTalkerApp.class);
@@ -77,19 +99,18 @@ public class FileHelper {
     }
 
     /**
-     * generates a filename based on local date time
+     * generates a filepath based on local date time
      * ex. recordings/rec-15_Feb-14_15_14.mp3
-     * @return
+     * @return generated filepath
      */
-    public static String generateUniqueRecordingFilename() {
+    public static Path generateUniqueRecordingFilename() {
         LocalDateTime localDateTime = LocalDateTime.now();
-        return  "recordings\\rec-"
+        return  Paths.get("recordings\\rec-"
                 + localDateTime.getDayOfMonth()
                 + "_" + localDateTime.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
                 + "-" + localDateTime.getHour()
                 + "_" + localDateTime.getMinute()
                 + "_" + localDateTime.getSecond()
-                + ".mp3";
+                + ".mp3");
     }
-
 }

@@ -2,50 +2,60 @@ package eu.tjago.apps.pollytalker.api;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.polly.AmazonPollyClient;
 import com.amazonaws.services.polly.model.*;
+import eu.tjago.apps.pollytalker.util.Constants;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by Tomasz on 2016-01-06.
- * Edited on 2018-02-14
+ * Created by tjago
  */
-public class SpeechCloudSingleton {
+public class AwsClientSingleton {
 
-    private static volatile SpeechCloudSingleton instance;
+    private static volatile AwsClientSingleton instance;
     private static volatile AmazonPollyClient pollyClient;
     private static volatile Path lastSavedFileLoc;
 
-    private SpeechCloudSingleton() {
+    private AwsClientSingleton() {
     }
 
-    public static SpeechCloudSingleton getInstance() {
-        synchronized (SpeechCloudSingleton.class) {
+    /**
+     * method initializes
+     * @return
+     */
+    public static AwsClientSingleton getInstance() {
+        synchronized (AwsClientSingleton.class) {
             if (instance == null) {
-                instance = new SpeechCloudSingleton();
-                instance.initSpeechCloudClient(Region.getRegion(Regions.EU_WEST_1));
+                instance = new AwsClientSingleton();
+                instance.initAwsPollyClient(Region.getRegion(Constants.DEFAULT_AWS_REGION));
             }
         }
         return instance;
     }
 
     /**
-     * Initialization
+     * default Initialization of Polly client from Provider chain
      *
      * @param region
      */
-    public void initSpeechCloudClient(Region region) {
+    public void initAwsPollyClient(Region region) {
         pollyClient = new AmazonPollyClient(new DefaultAWSCredentialsProviderChain(),
                 new ClientConfiguration());
 
+        pollyClient.setRegion(region);
+    }
+
+    public void initAwsPollyClientFromCredentials(Region region) {
+        pollyClient = new AmazonPollyClient();
         pollyClient.setRegion(region);
     }
 
@@ -56,11 +66,15 @@ public class SpeechCloudSingleton {
      * @return
      * @throws AmazonClientException
      */
-    public static List<Voice> getAllVoicesList() throws AmazonClientException {
-        return pollyClient.describeVoices(new DescribeVoicesRequest()).getVoices();
+    public static List<Voice> getAllVoicesList() {
+        try {
+            return pollyClient.describeVoices(new DescribeVoicesRequest()).getVoices();
+        } catch (SdkClientException e) {
+            return Collections.emptyList();
+        }
     }
 
-    public static Optional<Voice> getVoicebyName(String voiceName) {
+    public static Optional<Voice> getVoiceByName(String voiceName) {
         List<Voice> voices = pollyClient.describeVoices(new DescribeVoicesRequest()).getVoices();
         return voices.stream()
                 .filter(voice -> voice.getName().equals(voiceName))
