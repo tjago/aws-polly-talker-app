@@ -13,6 +13,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.media.Media;
@@ -33,28 +35,47 @@ public class ContentAreaController {
 
     private PollyTalkerApp appInstance;
     private List<Voice> voicesList;
-    private ThreadedVoicePlayer threadedVoicePlayer;
+    private Optional<ThreadedVoicePlayer> threadedVoicePlayer;
 
-    @FXML
-    private TextArea textArea;
-
-    @FXML
-    private ComboBox<String> languageComboBox;
-
-    @FXML
-    private ComboBox<String> voicesComboBox;
+    @FXML private TextArea textArea;
+    @FXML private ComboBox<String> languageComboBox;
+    @FXML private ComboBox<String> voicesComboBox;
+    @FXML private Button saveButton;
+    @FXML private Button readText;
+    @FXML private Button stopRead;
 
     @FXML
     public void initialize() {
         try {
             this.voicesList = AwsClientSingleton.getInstance().getAllVoicesList();
             textArea.setText("Hello human, type something for me to read.");
+            enableInterface();
         } catch (SdkClientException ex) {
             this.voicesList = Collections.emptyList();
             textArea.setText("AWS credentials are incorrect, please set them in settings.");
+            disableInterface();
         }
-            setLanguageCombobox();
-            setVoiceCombobox();
+    }
+
+    private void disableInterface() {
+        languageComboBox.setDisable(true);
+        voicesComboBox.setDisable(true);
+        saveButton.setDisable(true);
+        readText.setDisable(true);
+        stopRead.setDisable(true);
+        textArea.setEditable(false);
+    }
+
+    private void enableInterface() {
+        languageComboBox.setDisable(false);
+        voicesComboBox.setDisable(false);
+        saveButton.setDisable(false);
+        readText.setDisable(false);
+        stopRead.setDisable(false);
+        textArea.setEditable(true);
+
+        setLanguageCombobox();
+        setVoiceCombobox();
     }
 
     @FXML
@@ -72,9 +93,6 @@ public class ContentAreaController {
         String voiceName = voicesComboBox.getSelectionModel().getSelectedItem();
         Optional<Voice> voice = AwsClientSingleton.getInstance().getVoiceByName(voiceName);
         Path filepath = FileHelper.generateUniqueRecordingFilename();
-        if (threadedVoicePlayer != null) {
-            threadedVoicePlayer.close();
-        }
         try {
             Optional<InputStream> speechStream = Optional.ofNullable(AwsClientSingleton.synthesize(
                     textArea.getText(),
@@ -90,7 +108,8 @@ public class ContentAreaController {
         }
 
         Media audioMedia = new Media(filepath.toUri().toString());
-        new ThreadedVoicePlayer(new MediaPlayer(audioMedia)).run();
+        this.threadedVoicePlayer = Optional.of(new ThreadedVoicePlayer(new MediaPlayer(audioMedia)));
+        this.threadedVoicePlayer.ifPresent(ThreadedVoicePlayer::run);
     }
 
 
@@ -117,17 +136,21 @@ public class ContentAreaController {
         if (AwsClientSingleton.getLastSavedFileLoc().isPresent()) {
             appInstance.saveVoiceFileToUserSpecifiedLocation(AwsClientSingleton.getLastSavedFileLoc().get());
         } else {
-            //TODO display pop-up to play file first
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("Could not save sound to a File:\n");
+            alert.setContentText("Make sure you press read button first, to synthesize the text");
+
+            alert.showAndWait();
         }
     }
 
     /**
-     * Method called after choosing Language
+     * Method called after choosing Language.
+     * Based on selected Language, voices gonna get filtered from voice list.
+     *
      */
     private void setVoiceCombobox() {
-        if (languageComboBox.getItems().isEmpty()) {
-            return;
-        };
         String pickedLanguageName = languageComboBox.getSelectionModel().getSelectedItem().toString();
         ObservableList<String> voicesObsList = FXCollections.observableArrayList();
 
@@ -136,7 +159,6 @@ public class ContentAreaController {
                 voicesObsList.add(voice.getName());
             }
         }
-
         voicesComboBox.setItems(voicesObsList);
         voicesComboBox.getSelectionModel().selectFirst();
     }
@@ -167,6 +189,6 @@ public class ContentAreaController {
 
     @FXML
     private void stopReading(ActionEvent actionEvent) {
-        threadedVoicePlayer.halt();
+        threadedVoicePlayer.ifPresent(ThreadedVoicePlayer::halt);
     }
 }

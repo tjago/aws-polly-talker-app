@@ -27,7 +27,7 @@ public class AwsClientSingleton {
     }
 
     /**
-     * method initializes
+     * method initializes Singleton class
      * @return
      */
     public static AwsClientSingleton getInstance() {
@@ -42,6 +42,7 @@ public class AwsClientSingleton {
 
     /**
      * default Initialization of Polly client from Provider chain
+     * (here in PollyTalker from System properties)
      *
      * @param region
      */

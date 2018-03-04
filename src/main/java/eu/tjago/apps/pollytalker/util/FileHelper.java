@@ -59,8 +59,9 @@ public class FileHelper {
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
-            alert.setHeaderText("Could not load data from file:\n" + file.getPath());
-            alert.setContentText("Error Message:\n" + e.getMessage());
+            alert.setHeaderText("Could not load credentials from a File:\n" + file.getPath());
+            alert.setContentText("For first time use please go to Settings and set your AWS access key and secret"
+            + " for Polly service. These can be obtained from your AWS account console.");
 
             alert.showAndWait();
             return null;
@@ -88,7 +89,7 @@ public class FileHelper {
      *
      * @return file
      */
-    public static File getLastSavedLocation() { //TODO: convert to Optional
+    public static File getLastSavedLocation() {
         Preferences prefs = Preferences.userNodeForPackage(PollyTalkerApp.class);
         String filePath = prefs.get("filePath", null);
         if (filePath != null) {

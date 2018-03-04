@@ -64,7 +64,7 @@ public class PollyTalkerApp extends Application {
     private void initMainWindow(Stage primaryStage) {
 
         this.primaryStage = primaryStage;
-        this.primaryStage.setTitle("Polly Talker Application");
+        this.primaryStage.setTitle("Polly Talker app");
         this.primaryStage.setResizable(false);
 
         try {
@@ -90,6 +90,7 @@ public class PollyTalkerApp extends Application {
 
     public void setCredentials(PollyCredentials credentials) {
         this.credentials = credentials;
+        credentials.setSystemProperties();
         AwsClientSingleton.getInstance().initAwsPollyClient(Region.getRegion(Constants.DEFAULT_AWS_REGION));
         interfaceController.initialize();
 
@@ -166,7 +167,7 @@ public class PollyTalkerApp extends Application {
 
             // Create Credentials dialog
             Stage dialogStage = new Stage();
-            dialogStage.setTitle("About Ivona Talker");
+            dialogStage.setTitle("Polly Talker app info");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(primaryStage);
 
@@ -192,7 +193,7 @@ public class PollyTalkerApp extends Application {
     }
 
     /**
-     * Saves AWS Plooy Api credentials to a XML file
+     * Saves AWS Polly credentials to a XML file
      *
      * @param credentials user credentials
      * @param file specified location of file to be saved

@@ -32,11 +32,6 @@ public class AwsCredentialsController {
         this.app = talkerApp;
     }
 
-    @FXML
-    private void start() {
-        //set img //FIXME
-    }
-
     /**
      * Save credentials action
      *
@@ -50,6 +45,7 @@ public class AwsCredentialsController {
                     new PollyCredentials(accessKey.getText(), secretKey.getText())
             );
             app.saveCredentials();
+            dialogStage.close();
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Warning - empty values");
@@ -101,7 +97,7 @@ public class AwsCredentialsController {
     public void setStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
 
-        if (app.getCredentials().initialized()) {
+        if (app.getCredentials().areCredentialsInitialized()) {
             this.accessKey.setText(app.getCredentials().getAWSAccessKeyId());
             this.secretKey.setText(app.getCredentials().getAWSSecretKey());
         }

@@ -48,7 +48,14 @@ public class PollyCredentials implements AWSCredentials{
         System.setProperty("aws.secretKey", AWSSecretKey);
     }
 
-    public boolean initialized() {
+    public boolean areCredentialsInitialized() {
         return !getAWSAccessKeyId().isEmpty() && !getAWSSecretKey().isEmpty();
+    }
+
+    public void setSystemProperties() {
+        if (areCredentialsInitialized()) {
+            System.setProperty("aws.secretKey", AWSSecretKey);
+            System.setProperty("aws.accessKeyId", AWSAccessKeyId);
+        }
     }
 }
