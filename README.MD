@@ -1,15 +1,17 @@
-# Ivona Talker App
+# Polly Talker App
 ![Build Status](https://travis-ci.org/tjago/javafx-ivona-speech-api.svg?branch=master)
 
-This app uses the Amazon Ivona service api to generate voice from text, similar to Siri.
+This app uses the AWS Polly service api to generate voice from text, similar to Siri.
 
-Based on: [ivona-speechcloud-sdk-java](https://github.com/IvonaSoftware/ivona-speechcloud-sdk-java)
+Based on: [Polly Documentation](https://aws.amazon.com/polly/developers/)
+
+note: previously this service was known as Ivona API, before acquisition by Amazon.
 
 
 Features:
 
 * Uses JavaFX GUI
-* Grabs all possible voices for every language code
+* Grabs all voices for every language code
 * plays voice in separete Thread
 * Enables saving grabbed voice to .mp3 file
 
