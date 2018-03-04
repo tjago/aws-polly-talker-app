@@ -2,13 +2,19 @@ package eu.tjago.apps.pollytalker.model;
 
 import com.amazonaws.auth.AWSCredentials;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
- * Substitution class
- * Can't use existing BasicAWSCredentials class here
- * as JAXB requires default constructor and all setters and getters
+ * Credentials class
+ * For use in application and storing into a file using JAXB
+ *
+ * Credentials are later loaded using System property values.
  *
  * Created by tjago
  */
+
+@XmlRootElement(name = "credentialsRoot")
 public class PollyCredentials implements AWSCredentials{
     private String AWSAccessKeyId;
     private String AWSSecretKey;
@@ -20,11 +26,13 @@ public class PollyCredentials implements AWSCredentials{
         this.AWSSecretKey = AWSSecretKey;
     }
 
+    @XmlElement(name = "accessKey")
     @Override
     public String getAWSAccessKeyId() {
         return this.AWSAccessKeyId;
     }
 
+    @XmlElement(name = "secretKey")
     @Override
     public String getAWSSecretKey() {
         return this.AWSSecretKey;

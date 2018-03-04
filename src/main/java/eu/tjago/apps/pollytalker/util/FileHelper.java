@@ -30,10 +30,10 @@ public class FileHelper {
      */
     public static boolean saveCredentialsToFile(PollyCredentials credentials, File file) {
         try {
-            JAXBContext context = JAXBContext.newInstance(CredentialsXmlWrapper.class);
+            JAXBContext context = JAXBContext.newInstance(PollyCredentials.class);
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            m.marshal(new CredentialsXmlWrapper(credentials), file);
+            m.marshal(new PollyCredentials(credentials.getAWSAccessKeyId(), credentials.getAWSSecretKey()), file);
             return true;
 
         } catch (Exception e) {
@@ -48,13 +48,13 @@ public class FileHelper {
 
         File file = new File(filename);
         try {
-            JAXBContext context = JAXBContext.newInstance(CredentialsXmlWrapper.class);
+            JAXBContext context = JAXBContext.newInstance(PollyCredentials.class);
             Unmarshaller um     = context.createUnmarshaller();
 
             FileReader fileReader = new FileReader(file);
-            CredentialsXmlWrapper credentialsXmlWrapper = (CredentialsXmlWrapper) um.unmarshal(fileReader);
+            PollyCredentials pollyCredentials = (PollyCredentials) um.unmarshal(fileReader);
 
-            return credentialsXmlWrapper.getCredentials();
+            return pollyCredentials;
 
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);

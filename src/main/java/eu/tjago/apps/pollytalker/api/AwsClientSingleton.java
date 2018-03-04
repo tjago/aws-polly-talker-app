@@ -2,7 +2,6 @@ package eu.tjago.apps.pollytalker.api;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.polly.AmazonPollyClient;
@@ -12,7 +11,6 @@ import eu.tjago.apps.pollytalker.util.Constants;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,11 +52,6 @@ public class AwsClientSingleton {
         pollyClient.setRegion(region);
     }
 
-    public void initAwsPollyClientFromCredentials(Region region) {
-        pollyClient = new AmazonPollyClient();
-        pollyClient.setRegion(region);
-    }
-
     /**
      * Method returns list of all Polly voices
      * It's also serving the purpose of testing Credentials in this Singleton
@@ -67,11 +60,7 @@ public class AwsClientSingleton {
      * @throws AmazonClientException
      */
     public static List<Voice> getAllVoicesList() {
-        try {
             return pollyClient.describeVoices(new DescribeVoicesRequest()).getVoices();
-        } catch (SdkClientException e) {
-            return Collections.emptyList();
-        }
     }
 
     public static Optional<Voice> getVoiceByName(String voiceName) {

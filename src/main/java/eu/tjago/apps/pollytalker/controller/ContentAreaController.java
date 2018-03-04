@@ -1,5 +1,6 @@
 package eu.tjago.apps.pollytalker.controller;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.polly.model.OutputFormat;
 import com.amazonaws.services.polly.model.Voice;
 import eu.tjago.apps.pollytalker.PollyTalkerApp;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,11 +46,15 @@ public class ContentAreaController {
 
     @FXML
     public void initialize() {
-        this.voicesList = AwsClientSingleton.getInstance().getAllVoicesList();
-        if (!this.voicesList.isEmpty()) {
+        try {
+            this.voicesList = AwsClientSingleton.getInstance().getAllVoicesList();
+            textArea.setText("Hello human, type something for me to read.");
+        } catch (SdkClientException ex) {
+            this.voicesList = Collections.emptyList();
+            textArea.setText("AWS credentials are incorrect, please set them in settings.");
+        }
             setLanguageCombobox();
             setVoiceCombobox();
-        }
     }
 
     @FXML
@@ -87,13 +93,13 @@ public class ContentAreaController {
         new ThreadedVoicePlayer(new MediaPlayer(audioMedia)).run();
     }
 
+
     /**
      * Helper method to avoid catching exception in lambda function
      *
      * @param stream
      * @param filepath
      */
-
     private static void doSaveFile(InputStream stream, Path filepath) {
         try {
             java.nio.file.Files.copy(stream, filepath, StandardCopyOption.REPLACE_EXISTING);
@@ -119,7 +125,9 @@ public class ContentAreaController {
      * Method called after choosing Language
      */
     private void setVoiceCombobox() {
-
+        if (languageComboBox.getItems().isEmpty()) {
+            return;
+        };
         String pickedLanguageName = languageComboBox.getSelectionModel().getSelectedItem().toString();
         ObservableList<String> voicesObsList = FXCollections.observableArrayList();
 
@@ -140,8 +148,8 @@ public class ContentAreaController {
                 .forEach(item -> languagesSet.add(item.getLanguageName()));
 
         languageComboBox.setItems(FXCollections.observableArrayList(languagesSet));
-        if (languageComboBox.getItems().contains(Constants.PREFERED_LANGUAGE)) {
-            languageComboBox.getSelectionModel().select(Constants.PREFERED_LANGUAGE);
+        if (languageComboBox.getItems().contains(Constants.PREFERRED_LANGUAGE)) {
+            languageComboBox.getSelectionModel().select(Constants.PREFERRED_LANGUAGE);
         } else {
             languageComboBox.getSelectionModel().selectFirst();
         }

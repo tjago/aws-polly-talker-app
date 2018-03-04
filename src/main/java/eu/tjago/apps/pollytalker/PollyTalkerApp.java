@@ -90,6 +90,9 @@ public class PollyTalkerApp extends Application {
 
     public void setCredentials(PollyCredentials credentials) {
         this.credentials = credentials;
+        AwsClientSingleton.getInstance().initAwsPollyClient(Region.getRegion(Constants.DEFAULT_AWS_REGION));
+        interfaceController.initialize();
+
     }
 
     /**
@@ -182,14 +185,14 @@ public class PollyTalkerApp extends Application {
     }
 
     /**
-     * Load AWS Polly Api Credentials
+     * Load AWS Polly Api Credentials from XML file
      */
     private void loadCredentials() {
         this.credentials = FileHelper.loadCredentialsFromFile(Constants.CREDENTIALS_FILENAME);
     }
 
     /**
-     * Saves user and pass to xml file
+     * Saves AWS Plooy Api credentials to a XML file
      *
      * @param credentials user credentials
      * @param file specified location of file to be saved
