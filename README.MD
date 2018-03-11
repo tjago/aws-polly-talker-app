@@ -1,5 +1,5 @@
 # Polly Talker App
-![Build Status](https://travis-ci.org/tjago/javafx-ivona-speech-api.svg?branch=master)
+![Build Status](https://travis-ci.org/tjago/aws-polly-talker-app.svg?branch=master)
 
 This app uses the AWS Polly service api to generate voice from text, similar to Siri.
 
