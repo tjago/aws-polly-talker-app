@@ -22,7 +22,7 @@ repositories {
 
 version = '1.0'
 targetCompatibility = 1.8
-mainClassName = 'eu.tjago.apps.pollytalker.IvonaTalkerApp'
+mainClassName = 'eu.tjago.apps.pollytalker.PollyTalkerApp'
 
 dependencyManagement {
     imports {
